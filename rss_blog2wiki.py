@@ -29,10 +29,14 @@ for each in range(len(links)):
 	item = reddit_root.findall('channel/item')
 	reddit_feed={}
 	for entry in item:   
-	    reddit_feed[entry.findtext('title')] = entry.find('content:encoded',ns).text
+	    reddit_feed[entry.findtext('title')] = [entry.find('content:encoded',ns).text,entry.findtext('pubDate')]
 
 	for i in reddit_feed:
-		r = requests.post("http://localhost:8000/wiki/api/add/"+i.replace("?","__").replace("/","^^")+"/", data={'content':reddit_feed[i],'cate':cate[each]})
+		tmp = reddit_feed[i][1].split(" ")
+		month_dict={"Jan":"January", "Feb":"February", "Mar":"March", "Apr":"April", "May":"May","Jun":"June","Jul": "July","Aug":"August", "Sep":"September", 
+	"Oct":"October", "Nov":"November", "Dec":"December"}
+		date = tmp[1]+" "+month_dict[tmp[2]]+" "+tmp[3]
+		r = requests.post("http://wiki.infoassistants.net/wiki/api/add/"+i.replace("?","__").replace("/","^^")+"/", data={'content':reddit_feed[i][0],'cate':cate[each],'date':date})
 		# print(r.status_code)
 		if r.status_code == 404:
 			print (cate[each]+' : '+str(i.encode('utf-8')))
